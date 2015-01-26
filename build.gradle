@@ -1,0 +1,39 @@
+plugins {
+    id 'nu.studer.plugindev' version '1.0.3'
+}
+
+apply plugin: "groovy"
+
+group = 'com.github.jlouns'
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile "junit:junit:4.12"
+}
+
+plugindev {
+    pluginImplementationClass 'com.github.jlouns.gradle.cpe.CrossPlatformExecPlugin'
+    pluginDescription 'Gradle plugin which provides an exec task that works on Unix or Windows-based systems.'
+    pluginLicenses 'MIT'
+    pluginTags 'gradle', 'plugin', 'exec', 'cross-platform', 'cross-platform-exec'
+    authorId 'jlouns'
+    authorName 'Jonathan Lounsbury'
+    authorEmail 'jlouns@gmail.com'
+    projectUrl 'https://github.com/jlouns/gradle-cross-platform-exec-plugin'
+    projectInceptionYear '2015'
+    done()
+}
+
+bintray {
+    user = "$BINTRAY_USER"
+    key = "$BINTRAY_API_KEY"
+    pkg.repo = 'gradle-cross-platform-exec-plugin'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
