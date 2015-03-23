@@ -12,17 +12,35 @@ import org.gradle.testfixtures.ProjectBuilder
 class CrossPlatformExecTest extends GroovyTestCase {
 
 	private Project project;
+	private File shScript;
+	private File batScript;
+	private File cmdScript;
 
 	@Override
 	void setUp() {
 		project = ProjectBuilder.builder().build()
 
 		project.apply plugin: 'com.github.jlouns.cpe'
+		
+		shScript = new File("some_script.sh")
+		batScript = new File("some_script.bat")
+		cmdScript = new File("some_script2.cmd")
+		
+		shScript.createNewFile()
+		batScript.createNewFile()
+		cmdScript.createNewFile()
 	}
 
-	Task createTask() {
+	@Override
+	void tearDown() {
+		shScript.delete()
+		batScript.delete()
+		cmdScript.delete()
+	}
+
+	Task createTask(String executable='echo') {
 		Task task = project.task([ 'type': CrossPlatformExec ], 'testCpe') {
-			commandLine 'echo', 'foo'
+			commandLine executable, 'foo'
 		}
 
 		try {
@@ -46,6 +64,30 @@ class CrossPlatformExecTest extends GroovyTestCase {
 		Task task = createTask()
 
 		assertArrayEquals(['echo', 'foo'].toArray(), task.commandLine.toArray());
+	}
+
+	void testForAddingShScriptExtensions() {
+		System.setProperty("os.name", "linux")
+		
+		Task task = createTask('some_script')
+		
+		assertArrayEquals(['some_script.sh', 'foo'].toArray(), task.commandLine.toArray());	
+	}
+
+	void testForAddingBatScriptExtensions() {
+		System.setProperty("os.name", "windows")
+		
+		Task task = createTask('some_script')
+		
+		assertArrayEquals(['cmd', '/c', 'some_script.bat', 'foo'].toArray(), task.commandLine.toArray());	
+	}
+
+	void testForAddingCmdScriptExtensions() {
+		System.setProperty("os.name", "windows")
+		
+		Task task = createTask('some_script2')
+		
+		assertArrayEquals(['cmd', '/c', 'some_script2.cmd', 'foo'].toArray(), task.commandLine.toArray());	
 	}
 
 }
