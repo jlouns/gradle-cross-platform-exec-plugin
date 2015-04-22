@@ -7,12 +7,8 @@ import org.gradle.testfixtures.ProjectBuilder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.attribute.PosixFilePermission
 
-/**
- * Created on 1/26/15
- *
- * @author jlouns
- */
 class CrossPlatformExecTest extends GroovyTestCase {
 
 	private Project project;
@@ -33,6 +29,11 @@ class CrossPlatformExecTest extends GroovyTestCase {
 
 		commandFiles.each {
 			Files.createFile(it)
+			try {
+				Files.setPosixFilePermissions(it, EnumSet.allOf(PosixFilePermission));
+			} catch (Exception ex) {
+				// Ignore it, probably on windows
+			}
 		}
 	}
 
