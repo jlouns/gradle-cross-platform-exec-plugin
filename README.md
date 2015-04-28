@@ -6,7 +6,7 @@ Gradle plugin which provides an exec task that works on Unix or Windows-based sy
 
 ## Installing
 
-Releases of this plugin are hosted on [Bintray's JCenter repository](https://bintray.com/jlouns/maven/gradle-cross-platform-exec-plugin).
+Releases of this plugin are hosted on [Gradle's Plugin Repository](https://login.gradle.org/plugin/com.github.jlouns.cpe).
 Apply the plugin to your project using one of the two methods below.
 
 ### Gradle 2.0 and older
@@ -14,10 +14,12 @@ Apply the plugin to your project using one of the two methods below.
 ```groovy
 buildscript {
 	repositories {
-		jcenter()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
 	}
 	dependencies {
-		classpath 'com.github.jlouns:gradle-cross-platform-exec:0.1.0'
+		classpath 'com.github.jlouns:gradle-cross-platform-exec:0.2.0'
 	}
 }
 
@@ -28,14 +30,19 @@ apply plugin: 'com.github.jlouns.cpe'
 
 ```groovy
 plugins {
-	id 'com.github.jlouns.cpe' version '0.1.0'
+	id 'com.github.jlouns.cpe' version '0.2.0'
 }
 ```
 
 ## Usage
 
 This plugin enables a `CrossPlatformExec` task type in your buildscript which behaves exactly like a typical Gradle
-`Exec` task, except that it prepends each command with `cmd /c` on Windows systems to enable consistent behavior.
+`Exec` task, except that it normalizes calls to work across operating systems. It does this by:
+
+1. Searching for a file matching the name of the command and executing the matching file if it exists
+  - Files ending with .bat and .cmd are matched on Windows
+  - Files ending with .sh and nothing are matched on \*nix
+2. Prepending each command with `cmd /c` on Windows
 
 To define a `CrossPlatformExec` task, simply specify the task `type`:
 
