@@ -9,7 +9,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class CrossPlatformExec extends AbstractExecTask {
-	private static final def windowsExtensions = ['bat', 'cmd'];
+	private static final def windowsExtensions = ['bat', 'cmd', 'exe'];
 	private static final def unixExtensions = [null, 'sh'];
 
 	private boolean windows;

@@ -24,7 +24,9 @@ class CrossPlatformExecTest extends GroovyTestCase {
 			Paths.get('one'),
 			Paths.get('one.cmd'),
 			Paths.get('two.bat'),
-			Paths.get('two.sh')
+			Paths.get('two.sh'),
+			Paths.get('three'),
+			Paths.get('three.exe')
 		];
 
 		commandFiles.each {
@@ -109,6 +111,14 @@ class CrossPlatformExecTest extends GroovyTestCase {
 		Task task = createTask('two')
 
 		assertArrayEquals(['cmd', '/c', 'two.bat', 'foo'].toArray(), task.commandLine.toArray());
+	}
+
+	void testFormsWindowsExecCallForExeFile() {
+		asOs('windows')
+
+		Task task = createTask('three')
+
+		assertArrayEquals(['cmd', '/c', 'three.exe', 'foo'].toArray(), task.commandLine.toArray());
 	}
 
 }
