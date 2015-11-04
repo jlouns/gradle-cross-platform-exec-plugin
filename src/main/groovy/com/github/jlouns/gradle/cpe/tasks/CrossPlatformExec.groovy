@@ -39,15 +39,12 @@ class CrossPlatformExec extends AbstractExecTask {
 	}
 
 	private String findCommand(String command) {
+		command = normalizeCommandPaths(command);
 		if (windows) {
 			return windowsExtensions.findResult(command) { extension ->
-				String commandFile = command + '.' + extension;
+				Path commandFile = Paths.get(command + '.' + extension);
 
-				if (Files.isExecutable(Paths.get(commandFile))) {
-					return commandFile;
-				}
-
-				return null;
+				return CrossPlatformExec.resolveCommandFromFile(commandFile);
 			};
 		} else {
 			return unixExtensions.findResult(command) { extension ->
@@ -58,20 +55,28 @@ class CrossPlatformExec extends AbstractExecTask {
 					commandFile = Paths.get(command);
 				}
 
-				if (Files.isExecutable(commandFile)) {
-					Path cwd = Paths.get('.').toAbsolutePath().normalize();
-					String resolvedCommand = cwd.relativize(commandFile.toAbsolutePath().normalize());
-
-					if (!resolvedCommand.startsWith('.')) {
-						resolvedCommand = './' + resolvedCommand;
-					}
-
-					return resolvedCommand;
-				}
-
-				return null;
+				return CrossPlatformExec.resolveCommandFromFile(commandFile);
 			};
 		}
 	}
 
+	private static String resolveCommandFromFile(Path commandFile) {
+		if (!Files.isExecutable(commandFile)) {
+			return null;
+		}
+
+		Path cwd = Paths.get('.').toAbsolutePath().normalize();
+
+		String resolvedCommand = cwd.relativize(commandFile.toAbsolutePath().normalize());
+
+		if (!resolvedCommand.startsWith('.')) {
+			resolvedCommand = '.' + File.separator + resolvedCommand;
+		}
+
+		return resolvedCommand;
+	}
+
+	private static String normalizeCommandPaths(String command) {
+		return command.replaceAll('\\\\', '/').replaceAll('/', File.separator);
+	}
 }
