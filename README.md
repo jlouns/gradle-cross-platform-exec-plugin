@@ -18,7 +18,7 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath 'com.github.jlouns:gradle-cross-platform-exec:0.3.0'
+		classpath 'com.github.jlouns:gradle-cross-platform-exec:0.4.1'
 	}
 }
 
@@ -29,7 +29,7 @@ apply plugin: 'com.github.jlouns.cpe'
 
 ```groovy
 plugins {
-	id 'com.github.jlouns.cpe' version '0.3.0'
+	id 'com.github.jlouns.cpe' version '0.4.1'
 }
 ```
 
