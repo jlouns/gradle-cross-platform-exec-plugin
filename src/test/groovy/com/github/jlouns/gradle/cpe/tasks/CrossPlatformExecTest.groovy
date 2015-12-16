@@ -111,7 +111,7 @@ class CrossPlatformExecTest extends GroovyTestCase {
 
 		Task task = createTask("one")
 
-		assertArrayEquals(["cmd", "/c", ".${separator}one.cmd", "foo"].toArray(), task.commandLine.toArray());
+		assertArrayEquals(["cmd", "/c", "one.cmd", "foo"].toArray(), task.commandLine.toArray());
 	}
 
 	void testFormsWindowsExecCallForBatFile() {
@@ -119,7 +119,7 @@ class CrossPlatformExecTest extends GroovyTestCase {
 
 		Task task = createTask("two")
 
-		assertArrayEquals(["cmd", "/c", ".${separator}two.bat", "foo"].toArray(), task.commandLine.toArray());
+		assertArrayEquals(["cmd", "/c", "two.bat", "foo"].toArray(), task.commandLine.toArray());
 	}
 
 	void testFormsWindowsExecCallForExeFile() {
@@ -127,7 +127,7 @@ class CrossPlatformExecTest extends GroovyTestCase {
 
 		Task task = createTask("three")
 
-		assertArrayEquals(["cmd", "/c", ".${separator}three.exe", "foo"].toArray(), task.commandLine.toArray());
+		assertArrayEquals(["cmd", "/c", "three.exe", "foo"].toArray(), task.commandLine.toArray());
 	}
 
 	void testFixesPathSeparatorsOnLinux() {
@@ -143,7 +143,7 @@ class CrossPlatformExecTest extends GroovyTestCase {
 
 		Task task = createTask("./testdir/four")
 
-		assertArrayEquals(["cmd", "/c", ".${separator}testdir${separator}four.exe", "foo"].toArray(),
+		assertArrayEquals(["cmd", "/c", "testdir${separator}four.exe", "foo"].toArray(),
 			task.commandLine.toArray());
 	}
 

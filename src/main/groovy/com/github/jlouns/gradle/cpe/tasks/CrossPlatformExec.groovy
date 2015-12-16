@@ -25,10 +25,13 @@ class CrossPlatformExec extends AbstractExecTask {
 		List<String> commandLine = this.getCommandLine();
 
 		if (!commandLine.isEmpty()) {
-			commandLine[0] = this.findCommand(commandLine[0]);
+			commandLine[0] = findCommand(commandLine[0], windows);
 		}
 
 		if (windows) {
+			if (!commandLine.isEmpty() && commandLine[0]) {
+				commandLine
+			}
 			commandLine.add(0, '/c');
 			commandLine.add(0, 'cmd');
 		}
@@ -38,29 +41,23 @@ class CrossPlatformExec extends AbstractExecTask {
 		super.exec();
 	}
 
-	private String findCommand(String command) {
+	private static String findCommand(String command, boolean windows) {
 		command = normalizeCommandPaths(command);
-		if (windows) {
-			return windowsExtensions.findResult(command) { extension ->
-				Path commandFile = Paths.get(command + '.' + extension);
+		def extensions = windows ? windowsExtensions : unixExtensions;
 
-				return CrossPlatformExec.resolveCommandFromFile(commandFile);
-			};
-		} else {
-			return unixExtensions.findResult(command) { extension ->
-				Path commandFile
-				if (extension) {
-					commandFile = Paths.get(command + '.' + extension);
-				} else {
-					commandFile = Paths.get(command);
-				}
+		return extensions.findResult(command) { extension ->
+			Path commandFile
+			if (extension) {
+				commandFile = Paths.get(command + '.' + extension);
+			} else {
+				commandFile = Paths.get(command);
+			}
 
-				return CrossPlatformExec.resolveCommandFromFile(commandFile);
-			};
-		}
+			return resolveCommandFromFile(commandFile, windows);
+		};
 	}
 
-	private static String resolveCommandFromFile(Path commandFile) {
+	private static String resolveCommandFromFile(Path commandFile, boolean windows) {
 		if (!Files.isExecutable(commandFile)) {
 			return null;
 		}
@@ -69,7 +66,7 @@ class CrossPlatformExec extends AbstractExecTask {
 
 		String resolvedCommand = cwd.relativize(commandFile.toAbsolutePath().normalize());
 
-		if (!resolvedCommand.startsWith('.')) {
+		if (!windows && !resolvedCommand.startsWith('.')) {
 			resolvedCommand = '.' + File.separator + resolvedCommand;
 		}
 
@@ -77,6 +74,19 @@ class CrossPlatformExec extends AbstractExecTask {
 	}
 
 	private static String normalizeCommandPaths(String command) {
-		return command.replaceAll('\\\\', '/').replaceAll('/', File.separator);
+		// need to escape backslash so it works with regex
+		String backslashSeparator = '\\\\';
+
+		String forwardSlashSeparator = '/';
+
+		// escape separator if it's a backslash
+		char backslash = '\\';
+		String separator = File.separatorChar == backslash ? backslashSeparator : File.separator
+
+		return command
+			// first replace all of the backslashes with forward slashes
+			.replaceAll(backslashSeparator, forwardSlashSeparator)
+			// then replace all forward slashes with whatever the separator actually is
+			.replaceAll(forwardSlashSeparator, separator);
 	}
 }
