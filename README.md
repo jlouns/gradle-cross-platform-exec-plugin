@@ -18,7 +18,7 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath 'com.github.jlouns:gradle-cross-platform-exec:0.4.1'
+		classpath 'gradle.plugin.com.github.jlouns:gradle-cross-platform-exec-plugin:0.4.1'
 	}
 }
 
