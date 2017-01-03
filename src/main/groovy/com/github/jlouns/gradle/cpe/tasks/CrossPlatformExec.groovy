@@ -2,7 +2,6 @@ package com.github.jlouns.gradle.cpe.tasks
 
 import org.gradle.api.tasks.AbstractExecTask
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.os.OperatingSystem
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -16,7 +15,8 @@ class CrossPlatformExec extends AbstractExecTask {
 
 	public CrossPlatformExec() {
 		super(CrossPlatformExec.class);
-		windows = OperatingSystem.current().windows;
+		String os = System.getProperty('os.name').toLowerCase();
+		windows = os.contains('windows');
 	}
 
 	@Override
