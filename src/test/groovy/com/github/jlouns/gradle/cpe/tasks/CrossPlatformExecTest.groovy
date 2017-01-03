@@ -15,6 +15,8 @@ class CrossPlatformExecTest extends GroovyTestCase {
 
 	private Project project;
 	private Path testDir;
+	private Path absoluteTestDir;
+	private Path projectDir;
 	private Path[] commandFiles;
 
 	@Override
@@ -24,6 +26,8 @@ class CrossPlatformExecTest extends GroovyTestCase {
 		project.apply plugin: "com.github.jlouns.cpe"
 
 		testDir = Paths.get("testdir");
+		absoluteTestDir = testDir.toAbsolutePath();
+		projectDir = absoluteTestDir.parent;
 
 		commandFiles = [
 			Paths.get("one"),
@@ -56,8 +60,9 @@ class CrossPlatformExecTest extends GroovyTestCase {
 		Files.delete(testDir);
 	}
 
-	Task createTask(String executable) {
+	Task createTask(String executable, Path workingDirPath) {
 		Task task = project.task([ "type": CrossPlatformExec ], "testCpe") {
+			workingDir workingDirPath.toFile()
 			commandLine executable, "foo"
 		}
 
@@ -68,6 +73,10 @@ class CrossPlatformExecTest extends GroovyTestCase {
 		}
 
 		task
+	}
+
+	Task createTask(String executable) {
+		createTask(executable, projectDir)
 	}
 
 	static void asOs(String os) {
@@ -147,4 +156,45 @@ class CrossPlatformExecTest extends GroovyTestCase {
 			task.commandLine.toArray());
 	}
 
+	void testAbsolutePathOnLinux() {
+		Path executablePath = projectDir.resolve("testdir/four")
+
+		asOs("linux")
+
+		Task task = createTask(executablePath.toFile().absolutePath)
+
+		assertArrayEquals([".${separator}testdir${separator}four.sh", "foo"].toArray(), task.commandLine.toArray());
+	}
+
+	void testAbsolutePathOnWindows() {
+		Path executablePath = projectDir.resolve("testdir/four")
+
+		asOs("windows")
+
+		Task task = createTask(executablePath.toFile().absolutePath)
+
+		assertArrayEquals(["cmd", "/c", "testdir${separator}four.exe", "foo"].toArray(),
+			task.commandLine.toArray());
+	}
+
+	void testAbsolutePathWithWorkingDirOnLinux() {
+		Path executablePath = projectDir.resolve("testdir/four")
+
+		asOs("linux")
+
+		Task task = createTask(executablePath.toFile().absolutePath, absoluteTestDir)
+
+		assertArrayEquals([".${separator}four.sh", "foo"].toArray(), task.commandLine.toArray());
+	}
+
+	void testAbsolutePathWithWorkingDirOnWindows() {
+		Path executablePath = projectDir.resolve("testdir/four")
+
+		asOs("windows")
+
+		Task task = createTask(executablePath.toFile().absolutePath, absoluteTestDir)
+
+		assertArrayEquals(["cmd", "/c", "four.exe", "foo"].toArray(),
+			task.commandLine.toArray());
+	}
 }
